@@ -3808,10 +3808,17 @@ void ClipperOffset::Clear()
 
 void ClipperOffset::AddPath(const Path& path, JoinType joinType, EndType endType)
 {
+  AddPath(path, joinType, endType, endType);
+}
+//------------------------------------------------------------------------------
+
+void ClipperOffset::AddPath(const Path& path, JoinType joinType, EndType startType, EndType endType)
+{
   int highI = (int)path.size() - 1;
   if (highI < 0) return;
   PolyNode* newNode = new PolyNode();
   newNode->m_jointype = joinType;
+  newNode->m_starttype = startType;
   newNode->m_endtype = endType;
 
   //strip duplicate points from path and also get index to the lowest point ...
@@ -3853,8 +3860,14 @@ void ClipperOffset::AddPath(const Path& path, JoinType joinType, EndType endType
 
 void ClipperOffset::AddPaths(const Paths& paths, JoinType joinType, EndType endType)
 {
+  AddPaths(paths, joinType, endType, endType);
+}
+//------------------------------------------------------------------------------
+
+void ClipperOffset::AddPaths(const Paths& paths, JoinType joinType, EndType startType, EndType endType)
+{
   for (Paths::size_type i = 0; i < paths.size(); ++i)
-    AddPath(paths[i], joinType, endType);
+    AddPath(paths[i], joinType, startType, endType);
 }
 //------------------------------------------------------------------------------
 
@@ -3991,6 +4004,7 @@ void ClipperOffset::DoOffset(double delta)
   m_StepsPerRad = steps / two_pi;
   if (delta < 0.0) m_sin = -m_sin;
 
+
   m_destPolys.reserve(m_polyNodes.ChildCount() * 2);
   for (int i = 0; i < m_polyNodes.ChildCount(); i++)
   {
@@ -4104,7 +4118,7 @@ void ClipperOffset::DoOffset(double delta)
       k = len - 1;
       for (int j = k - 1; j > 0; --j) OffsetPoint(j, k, node.m_jointype);
 
-      if (node.m_endtype == etOpenButt)
+      if (node.m_starttype == etOpenButt)
       {
         pt1 = IntPoint((cInt)Round(m_srcPoly[0].X - m_normals[0].X * delta),
           (cInt)Round(m_srcPoly[0].Y - m_normals[0].Y * delta));
@@ -4117,7 +4131,7 @@ void ClipperOffset::DoOffset(double delta)
       {
         k = 1;
         m_sinA = 0;
-        if (node.m_endtype == etOpenSquare)
+        if (node.m_starttype == etOpenSquare)
           DoSquare(0, 1);
         else
           DoRound(0, 1);

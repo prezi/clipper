@@ -150,6 +150,7 @@ private:
     unsigned Index; //node index in Parent.Childs
     bool m_IsOpen;
     JoinType m_jointype;
+    EndType m_starttype;
     EndType m_endtype;
     PolyNode* GetNextSiblingUp() const;
     void AddChild(PolyNode& child);
@@ -364,6 +365,8 @@ public:
   ~ClipperOffset();
   void AddPath(const Path& path, JoinType joinType, EndType endType);
   void AddPaths(const Paths& paths, JoinType joinType, EndType endType);
+  void AddPath(const Path& path, JoinType joinType, EndType startType, EndType endType);
+  void AddPaths(const Paths& paths, JoinType joinType, EndType startType, EndType endType);
   void Execute(Paths& solution, double delta);
   void Execute(PolyTree& solution, double delta);
   void Clear();
